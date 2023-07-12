@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pymongo.errors import DuplicateKeyError
+from typing import Annotated
 
+from app.dependencies import get_api_key
 from app.models.monitored_voice_channel import (
     CreateMonitoredVoiceChannel, 
     MonitoredVoiceChannel, 
@@ -10,7 +12,25 @@ from app.models.monitored_voice_channel import (
 router = APIRouter(
     prefix="/api/v1/monitored-voice-channels",
     tags=["activity_monitor"],
+    dependencies=[Depends(get_api_key)],
 )
+
+
+async def get_voice_channel(channel_id: int) -> MonitoredVoiceChannel:
+    voice_channel = await MonitoredVoiceChannel.find_one(
+        MonitoredVoiceChannel.channel_id == channel_id
+    )
+
+    if not voice_channel:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Voice channel not found",
+        )
+    
+    return voice_channel
+
+
+VoiceChannelDep = Annotated[MonitoredVoiceChannel, Depends(get_voice_channel)]
 
 
 @router.get("/")
@@ -21,50 +41,41 @@ async def all() -> list[MonitoredVoiceChannel]:
 
 
 @router.post("/", status_code=201)
-async def create(req: CreateMonitoredVoiceChannel) -> MonitoredVoiceChannel:
+async def create(
+    req: CreateMonitoredVoiceChannel,
+) -> MonitoredVoiceChannel:
     voice_channel = MonitoredVoiceChannel(**req.dict())
     
     try:
         await voice_channel.insert()
     except DuplicateKeyError:
-        raise HTTPException(400, "Voice channel already exists")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Voice channel already exists",
+        )
 
     return voice_channel
 
 
 @router.get("/{channel_id}")
-async def detail(channel_id: int) -> MonitoredVoiceChannel:
-    voice_channel = await MonitoredVoiceChannel.find_one(
-        MonitoredVoiceChannel.channel_id == channel_id
-    )
-
-    if not voice_channel:
-        raise HTTPException(404, "Voice channel not found")
-
+async def detail(
+    voice_channel: VoiceChannelDep,
+) -> MonitoredVoiceChannel:
     return voice_channel
 
 
 @router.put("/{channel_id}")
-async def edit(channel_id: int, req: UpdateMonitoredVoiceChannel) -> MonitoredVoiceChannel:
-    voice_channel = await MonitoredVoiceChannel.find_one(
-        MonitoredVoiceChannel.channel_id == channel_id
-    )
-
-    if not voice_channel:
-        raise HTTPException(404, "Voice channel not found")
-
+async def edit(
+    voice_channel: VoiceChannelDep,
+    req: UpdateMonitoredVoiceChannel,
+) -> MonitoredVoiceChannel:
     await voice_channel.set(req.dict())
 
     return voice_channel
 
 
 @router.delete("/{channel_id}", status_code=204)
-async def delete(channel_id: int):
-    voice_channel = await MonitoredVoiceChannel.find_one(
-        MonitoredVoiceChannel.channel_id == channel_id
-    )
-
-    if not voice_channel:
-        raise HTTPException(404, "Voice channel not found")
-    
+async def delete(
+    voice_channel: VoiceChannelDep,
+):    
     await voice_channel.delete()
