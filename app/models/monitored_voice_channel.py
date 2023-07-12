@@ -1,15 +1,22 @@
-from beanie import Document, Indexed
+from beanie import Document
 from pydantic import BaseModel
+from pymongo import ASCENDING, IndexModel
 
 
 class MonitoredVoiceChannel(Document):
-    channel_id: Indexed(int, unique=True)
     guild_id: int
+    channel_id: int
     default_name: str
     icon: str | None
 
     class Settings:
         name = "monitored_voice_channel"
+        indexes = [
+            IndexModel(
+                [ ("guild_id", ASCENDING), ("channel_id", ASCENDING) ],
+                unique=True,
+            ),
+        ]
     
 
 class CreateMonitoredVoiceChannel(BaseModel):

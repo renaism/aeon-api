@@ -10,15 +10,19 @@ from app.models.monitored_voice_channel import (
 )
 
 router = APIRouter(
-    prefix="/api/v1/monitored-voice-channels",
+    prefix="/api/v1/monitored-voice-channel",
     tags=["activity_monitor"],
     dependencies=[Depends(get_api_key)],
 )
 
 
-async def get_voice_channel(channel_id: int) -> MonitoredVoiceChannel:
+async def get_voice_channel(
+    guild_id: int,
+    channel_id: int,
+) -> MonitoredVoiceChannel:
     voice_channel = await MonitoredVoiceChannel.find_one(
-        MonitoredVoiceChannel.channel_id == channel_id
+        MonitoredVoiceChannel.guild_id == guild_id,
+        MonitoredVoiceChannel.channel_id == channel_id,
     )
 
     if not voice_channel:
@@ -33,14 +37,18 @@ async def get_voice_channel(channel_id: int) -> MonitoredVoiceChannel:
 VoiceChannelDep = Annotated[MonitoredVoiceChannel, Depends(get_voice_channel)]
 
 
-@router.get("/")
-async def all() -> list[MonitoredVoiceChannel]:
-    voice_channels = await MonitoredVoiceChannel.find().to_list()
+@router.get("/list")
+async def list_(
+    guild_id: int
+) -> list[MonitoredVoiceChannel]:
+    voice_channels = await MonitoredVoiceChannel.find(
+        MonitoredVoiceChannel.guild_id == guild_id
+    ).to_list()
 
     return voice_channels
 
 
-@router.post("/", status_code=201)
+@router.post("/create", status_code=201)
 async def create(
     req: CreateMonitoredVoiceChannel,
 ) -> MonitoredVoiceChannel:
@@ -57,14 +65,14 @@ async def create(
     return voice_channel
 
 
-@router.get("/{channel_id}")
+@router.get("/detail")
 async def detail(
     voice_channel: VoiceChannelDep,
 ) -> MonitoredVoiceChannel:
     return voice_channel
 
 
-@router.put("/{channel_id}")
+@router.put("/edit")
 async def edit(
     voice_channel: VoiceChannelDep,
     req: UpdateMonitoredVoiceChannel,
@@ -74,7 +82,7 @@ async def edit(
     return voice_channel
 
 
-@router.delete("/{channel_id}", status_code=204)
+@router.delete("/delete", status_code=204)
 async def delete(
     voice_channel: VoiceChannelDep,
 ):    
