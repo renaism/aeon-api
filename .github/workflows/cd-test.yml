@@ -45,7 +45,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       API_KEY_SECRET: ${{ secrets.API_KEY_SECRET }}
       DB_HOST: ${{ secrets.DB_HOST }}
-      DB_NAME: ${{ secrests.DB_NAME }}
+      DB_NAME: ${{ secrets.DB_NAME }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
     steps:
