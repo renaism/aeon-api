@@ -39,11 +39,18 @@ VoiceChannelDep = Annotated[MonitoredVoiceChannel, Depends(get_voice_channel)]
 
 @router.get("/list")
 async def list_(
-    guild_id: int
+    guild_id: int | None = None
 ) -> list[MonitoredVoiceChannel]:
-    voice_channels = await MonitoredVoiceChannel.find(
-        MonitoredVoiceChannel.guild_id == guild_id
-    ).to_list()
+    if guild_id is None:
+        # Find all voice channels for all guilds
+        query = MonitoredVoiceChannel.find()
+    else:
+        # Find all voice channels for a specific guild
+        query = MonitoredVoiceChannel.find(
+            MonitoredVoiceChannel.guild_id == guild_id
+        )
+    
+    voice_channels = await query.to_list()
 
     return voice_channels
 
