@@ -39,11 +39,17 @@ ActivityDep = Annotated[PreferredActivityName, Depends(get_activity)]
 
 @router.get("/list")
 async def list_(
-    guild_id: int,
+    guild_id: int | None = None,
 ) -> list[PreferredActivityName]:
-    activities = await PreferredActivityName.find(
-        PreferredActivityName.guild_id == guild_id
-    ).to_list()
+    if guild_id is None:
+        # Find all activity names for all guilds
+        query = PreferredActivityName.find()
+    else:
+        # Find all activty names for a specific guild
+        query = PreferredActivityName.find(
+            PreferredActivityName.guild_id == guild_id
+        )
+    activities = await query.to_list()
 
     return activities
 
