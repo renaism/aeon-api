@@ -1,12 +1,22 @@
-from fastapi import HTTPException, Security, status
+from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 from passlib.context import CryptContext
+from typing import Annotated
 
 from app.config import Config
 
 api_key_header = APIKeyHeader(name="Access-Token")
 
 crypt_ctx = CryptContext(schemes=["bcrypt"])
+
+
+class Pagination:
+    def __init__(self, skip: int = 0, limit: int = 10):
+        self.skip = skip
+        self.limit = limit
+
+
+PaginationDep = Annotated[Pagination, Depends()]
 
 
 async def get_api_key(api_key: str = Security(api_key_header)) -> str:
