@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import init_db
 from app.routes.v1.log import router as log_router
@@ -11,6 +12,16 @@ app = FastAPI(
     description="REST API for Aeon Bot",
 )
 
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex="http://localhost:[0-9]*",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Routers
 app.include_router(log_router)
 app.include_router(monitored_voice_channel_router)
 app.include_router(preferred_activity_name_router)
