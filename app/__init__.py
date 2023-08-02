@@ -13,9 +13,14 @@ app = FastAPI(
 )
 
 # CORS
+origins = [
+    "http://localhost:[0-9]*",
+    "https://.*aeon.*"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex="http://localhost:[0-9]*",
+    allow_origin_regex="|".join(origins),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
