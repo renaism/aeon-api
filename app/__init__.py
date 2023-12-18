@@ -14,7 +14,9 @@ app = FastAPI(
 
 # CORS
 origins = [
-    "http://localhost:[0-9]*",
+    "http://localhost",
+    "http://localhost:[0-9]+",
+    "http://172\.18\.0\.[0-9]+:[0-9]+",
     "https://.*aeon.*"
 ]
 
