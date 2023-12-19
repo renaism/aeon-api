@@ -7,6 +7,7 @@ load_dotenv()
 
 class Config:
     API_KEY_SECRET = os.getenv("API_KEY_SECRET")
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", default="").split(",")
 
 
 class DBConfig:

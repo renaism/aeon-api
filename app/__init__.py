@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import Config
 from app.database import init_db
 from app.routes.v1.log import router as log_router
 from app.routes.v1.monitored_voice_channel import router as monitored_voice_channel_router
@@ -13,16 +14,9 @@ app = FastAPI(
 )
 
 # CORS
-origins = [
-    "http://localhost",
-    "http://localhost:[0-9]+",
-    "http://172\.18\.0\.[0-9]+:[0-9]+",
-    "https://.*aeon.*"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex="|".join(origins),
+    allow_origins=Config.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
