@@ -12,7 +12,7 @@ async def init_db():
     name = DBConfig.NAME
     username = urllib.parse.quote(DBConfig.USERNAME, safe="")
     password = urllib.parse.quote(DBConfig.PASSWORD, safe="")
-    url = f"mongodb://{username}:{password}@{host}/?authSource={name}"
+    url = f"mongodb://{username}:{password}@{host}"
 
     db = AsyncIOMotorClient(url)
     document_models = [ "app.models." + model for model in app.models.__all__ ]
