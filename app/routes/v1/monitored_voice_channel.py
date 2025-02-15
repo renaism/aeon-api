@@ -5,8 +5,7 @@ from typing import Annotated
 from app.dependencies import get_api_key
 from app.models.monitored_voice_channel import (
     CreateMonitoredVoiceChannel, 
-    MonitoredVoiceChannel, 
-    UpdateMonitoredVoiceChannel
+    MonitoredVoiceChannel
 )
 
 router = APIRouter(
@@ -76,16 +75,6 @@ async def create(
 async def detail(
     voice_channel: VoiceChannelDep,
 ) -> MonitoredVoiceChannel:
-    return voice_channel
-
-
-@router.put("/edit")
-async def edit(
-    voice_channel: VoiceChannelDep,
-    req: UpdateMonitoredVoiceChannel,
-) -> MonitoredVoiceChannel:
-    await voice_channel.set(req.dict())
-
     return voice_channel
 
 
