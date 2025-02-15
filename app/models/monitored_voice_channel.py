@@ -6,8 +6,6 @@ from pymongo import ASCENDING, IndexModel
 class MonitoredVoiceChannel(Document):
     guild_id: int
     channel_id: int
-    default_name: str
-    icon: str | None
 
     class Settings:
         name = "monitored_voice_channel"
@@ -22,10 +20,3 @@ class MonitoredVoiceChannel(Document):
 class CreateMonitoredVoiceChannel(BaseModel):
     channel_id: int
     guild_id: int
-    default_name: str
-    icon: str | None = None
-
-
-class UpdateMonitoredVoiceChannel(BaseModel):
-    default_name: str
-    icon: str | None = None
